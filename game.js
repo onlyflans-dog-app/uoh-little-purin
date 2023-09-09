@@ -25,6 +25,8 @@ let gameOver = false;
 
 let ground = 720 - 95 - 50;
 
+let startTime;
+
 bgImage.onload = () => {
   imagesLoaded++;
 
@@ -64,9 +66,8 @@ gameOverImage.onload = () => {
   }
 };
 
-
 // Player setup
-const player = {
+player = {
   width: 50,
   height: 50,
 
@@ -80,7 +81,7 @@ const player = {
   jumpForce: 11,
   gravity: 0.5,
 
-  speed: 2,
+  speed: 0,
   walkSpeed: 2,
   runSpeed: 3,
 
@@ -88,7 +89,7 @@ const player = {
 };
 
 // Enemy setup
-const enemy = {
+enemy = {
   width: 50,
   height: 50,
 
@@ -150,6 +151,7 @@ function handleKeyRelease(e) {
 
 // Start the game
 function startGame() {
+  startTime = Date.now();
   update();
 }
 
@@ -164,6 +166,11 @@ function update() {
   
     // Draw game objects
     draw();
+
+
+    if (gameOver) {
+      return;
+    }
   
     // Repeat update function
     requestAnimationFrame(update);
@@ -221,7 +228,6 @@ function update() {
   }
 
 setInterval(function() {
-
   // add randomness to direction
   let rand = Math.floor(Math.random() * 6)+1;
   if(rand < 3) {
@@ -245,6 +251,20 @@ setInterval(function() {
   }
 
 }, 1000);
+
+function displayTimePlayed() {
+  const currentTime = Date.now();
+  const timeElapsed = Math.floor((currentTime - startTime) / 1000); // Time in seconds
+
+  // split time into minutes and seconds, with leading zeros
+  const minutes = ("0" + Math.floor(timeElapsed / 60)).slice(-2);
+  const seconds = ("0" + (timeElapsed % 60)).slice(-2);
+
+  ctx.fillStyle = "white";
+  ctx.font = "24px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText(`Survived: ${minutes}:${seconds}`, canvas.width / 2, 30);
+}
 
 // Draw game objects
 function draw() {
@@ -274,19 +294,19 @@ function draw() {
     // Draw player
     if(!gameOver){    
         if (player.dirL === -1) {
-        // Flip the player sprite horizontally
-        ctx.save();
-        ctx.scale(-1, 1);
-        ctx.drawImage(
-            playerImage,
-            -player.x - player.width,
-            player.y,
-            player.width,
-            player.height
-        );
-        ctx.restore();
+          // Flip the player sprite horizontally
+          ctx.save();
+          ctx.scale(-1, 1);
+          ctx.drawImage(
+              playerImage,
+              -player.x - player.width,
+              player.y,
+              player.width,
+              player.height
+          );
+          ctx.restore();
         } else {
-        ctx.drawImage(playerImage, player.x, player.y, player.width, player.height);
+          ctx.drawImage(playerImage, player.x, player.y, player.width, player.height);
         }
         
     }
@@ -299,5 +319,7 @@ function draw() {
         canvas.height / 2 - gameOverImage.height / 2
       );
     }
-  }
+
+    displayTimePlayed();
+}
   
